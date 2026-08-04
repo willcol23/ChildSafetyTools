@@ -63,7 +63,7 @@ A monitoring tool that provides guardians with visibility into a dependent's mov
 
 ## 🛠 Tech Stack
 
-- **Frontend**: JavaScript (56.3%)
+- **Frontend**: JavaScript, Kotlin (56.3%)
 - **Backend**: Python (26.2%)
 - **Markup & Styling**: HTML (8.9%), CSS (8.6%)
 
@@ -122,11 +122,11 @@ eliminition/
 ├── apps/
 │   ├── backend/        # Azure Functions / API
 │   ├── web/            # Web application (React)
-│   └── mobile/         # Android application
+│   └── mobile/         # Android application (Kotlin)
 │
 ├── packages/
 │   ├── api-contracts/  # OpenAPI specs & generated clients
-│   ├── business-logic/ # Shared domain logic
+│   ├── business-logic/ # Shared domain logic(Python, JS)
 │   ├── schemas/        # Validation & data schemas
 │   ├── utils/          # Shared utilities
 │   └── config/         # Shared linting & formatting configs
