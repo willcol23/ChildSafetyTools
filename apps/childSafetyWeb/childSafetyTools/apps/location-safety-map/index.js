@@ -1,4 +1,6 @@
-export function initLocationSafetyMapModule() {
+import { SafetyApiClient } from '../../api/safety-api-client.js';
+
+export function initLocationSafetyMapModule(apiClient = new SafetyApiClient()) {
   const form = document.getElementById('location-form');
   const status = document.getElementById('location-status');
   let mapInstance = null;
@@ -107,22 +109,6 @@ export function initLocationSafetyMapModule() {
       }).addTo(mapInstance);
     });
   }
-  function buildDemoCells(location, crime_type = 'all') {
-    const lat = location.lat;
-    const lng = location.lng;
-    const cells = [
-      { lat: lat + 0.004, lng: lng + 0.003, intensity: 0.8, count: 6, crime_types: ['burglary'], properties: { source: 'demo' } },
-      { lat: lat - 0.003, lng: lng + 0.002, intensity: 0.6, count: 4, crime_types: ['theft'], properties: { source: 'demo' } },
-      { lat: lat + 0.002, lng: lng - 0.003, intensity: 0.5, count: 3, crime_types: ['assault'], properties: { source: 'demo' } }
-    ];
-
-    if (crime_type && crime_type.toLowerCase() !== 'all') {
-      return cells.filter((c) => (c.crime_types || []).some((t) => t.toLowerCase() === crime_type.toLowerCase()));
-    }
-
-    return cells;
-  }
-
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     status.textContent = 'Loading map data...';
@@ -134,66 +120,13 @@ export function initLocationSafetyMapModule() {
     const databases = (formData.get('databases')?.toString().trim() || 'Default').replace(/\s+/g, '');
 
     try {
-        let locationData;
-        try {
-          const locationRes = await fetch(`/api/location/resolve?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
-          if (locationRes.ok) {
-            locationData = await locationRes.json();
-          } else {
-            console.warn('Location lookup failed, using local fallback');
-            locationData = { location: { lat: 39.9612, lng: -82.9988 } };
-          }
-        } catch (err) {
-          console.warn('Location lookup error, using local fallback', err);
-          locationData = { location: { lat: 39.9612, lng: -82.9988 } };
-        }
-
-        let overlayData;
-        try {
-          const overlayRes = await fetch(
-            `/api/heatmap/overlay?lat=${locationData.location.lat}&lng=${locationData.location.lng}&city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}&databases=${encodeURIComponent(databases)}`
-          );
-          if (overlayRes.ok) {
-            overlayData = await overlayRes.json();
-          } else {
-            console.warn('Overlay lookup failed, using demo cells');
-            overlayData = { location: locationData.location, cell_count: 0, cells: buildDemoCells(locationData.location) };
-          }
-        } catch (err) {
-          console.warn('Overlay request error, using demo cells', err);
-          overlayData = { location: locationData.location, cell_count: 0, cells: buildDemoCells(locationData.location) };
-        }
+        const overlayData = await apiClient.getHeatmapOverlay({ city, state });
 
         await loadAzureMaps();
         renderMap(overlayData.location.lat, overlayData.location.lng, overlayData.cells || []);
 
-        try {
-          const saveRes = await fetch('/api/heatmaps', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              city,
-              state,
-              databases,
-              location: overlayData.location,
-              cellCount: overlayData.cell_count || (overlayData.cells || []).length,
-              cells: overlayData.cells || [],
-              source: 'azure-maps'
-            })
-          });
-          if (saveRes.ok) {
-            const saveData = await saveRes.json();
-            status.textContent = `Showing ${overlayData.cell_count || (overlayData.cells || []).length} overlay cells for ${city}, ${state}. Saved ${saveData.totalSaved || 0} map snapshots.`;
-          } else {
-            console.warn('Heatmap save request failed');
-            status.textContent = `Showing ${overlayData.cell_count || (overlayData.cells || []).length} overlay cells for ${city}, ${state}. (Save failed)`;
-          }
-          status.className = 'status success';
-        } catch (err) {
-          console.warn('Heatmap save error', err);
-          status.textContent = `Showing ${overlayData.cell_count || (overlayData.cells || []).length} overlay cells for ${city}, ${state}. (Save failed)`;
-          status.className = 'status success';
-        }
+        status.textContent = `Showing ${overlayData.cell_count || (overlayData.cells || []).length} overlay cells for ${city}, ${state}.`;
+        status.className = 'status success';
     } catch (error) {
       status.textContent = `Error: ${error.message}`;
       status.className = 'status error';

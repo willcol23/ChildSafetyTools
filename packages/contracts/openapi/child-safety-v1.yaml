@@ -1,0 +1,84 @@
+openapi: 3.1.0
+info:
+  title: Child Safety API
+  version: 1.0.0
+paths:
+  /v1/locations:resolve:
+    get:
+      operationId: resolveLocation
+      parameters:
+        - $ref: '#/components/parameters/City'
+        - $ref: '#/components/parameters/State'
+      responses:
+        '200':
+          description: Resolved location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolvedLocation'
+  /v1/heatmaps/overlay:
+    get:
+      operationId: getHeatmapOverlay
+      parameters:
+        - $ref: '#/components/parameters/City'
+        - $ref: '#/components/parameters/State'
+        - name: radius_km
+          in: query
+          schema: { type: number, minimum: 0.1, default: 8 }
+        - name: crime_type
+          in: query
+          schema: { type: string, default: all }
+      responses:
+        '200':
+          description: Heatmap overlay
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeatmapOverlay'
+components:
+  parameters:
+    City:
+      name: city
+      in: query
+      schema: { type: string, default: Columbus }
+    State:
+      name: state
+      in: query
+      schema: { type: string, default: OH }
+  schemas:
+    Location:
+      type: object
+      required: [lat, lng]
+      properties:
+        lat: { type: number }
+        lng: { type: number }
+    ResolvedLocation:
+      type: object
+      required: [city, state, location]
+      properties:
+        city: { type: string }
+        state: { type: string }
+        location: { $ref: '#/components/schemas/Location' }
+    HeatmapCell:
+      type: object
+      required: [lat, lng, intensity, count, crime_types, properties]
+      properties:
+        lat: { type: number }
+        lng: { type: number }
+        intensity: { type: number, minimum: 0, maximum: 1 }
+        count: { type: integer, minimum: 0 }
+        crime_types:
+          type: array
+          items: { type: string }
+        properties: { type: object, additionalProperties: true }
+    HeatmapOverlay:
+      type: object
+      required: [location, radius_km, filters, cell_count, cells]
+      properties:
+        location: { $ref: '#/components/schemas/Location' }
+        radius_km: { type: number }
+        filters: { type: object, additionalProperties: true }
+        cell_count: { type: integer }
+        cells:
+          type: array
+          items: { $ref: '#/components/schemas/HeatmapCell' }

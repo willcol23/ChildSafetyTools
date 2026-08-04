@@ -93,38 +93,13 @@ app.get('/api/children', async (_req, res) => {
   }
 });
 
-app.get('/api/location/resolve', async (req, res) => {
-  const city = req.query.city || 'Columbus';
-  const state = req.query.state || 'OH';
-
+app.get('/api/safety/heatmaps/overlay', async (req, res) => {
   try {
-    const payload = await requestBackend('/heatmap/overlay', {
-      city,
-      state,
-      radius_km: 8,
-      databases: 'Default'
-    });
-
-    res.json({
-      city,
-      state,
-      location: payload.location,
-      databases: ['Default']
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Backend call failed', details: error.message });
-  }
-});
-
-app.get('/api/heatmap/overlay', async (req, res) => {
-  try {
-    const payload = await requestBackend('/heatmap/overlay', {
+    const payload = await requestBackend('/v1/heatmaps/overlay', {
       city: req.query.city,
       state: req.query.state,
       radius_km: req.query.radius_km || req.query.radiusKm || 8,
-      crime_type: req.query.crime_type || 'all',
-      databases: req.query.databases || 'Default'
+      crime_type: req.query.crime_type || 'all'
     });
 
     res.json(payload);

@@ -1,0 +1,5 @@
+-e ../../packages/python
+fastapi
+uvicorn
+httpx
+python-dotenv
