@@ -1,4 +1,51 @@
-from .domain import HeatmapCell, HeatmapOverlay, HeatmapQuery, Location, LocationQuery, ResolvedLocation
+from .domain import (
+    CrimeEvent,
+    DemographicProfile,
+    HeatmapCell,
+    HeatmapOverlay,
+    HeatmapQuery,
+    Location,
+    LocationQuery,
+    ResolvedLocation,
+)
+
+
+def aggregate_heatmap(crimes: list[CrimeEvent], demographics: list[DemographicProfile]) -> list[HeatmapCell]:
+    """Group crimes into heatmap cells using a deterministic binning strategy."""
+    if not crimes:
+        return []
+
+    buckets: dict[tuple[float, float], dict[str, object]] = {}
+    for crime in crimes:
+        key = (round(crime.lat, 2), round(crime.lon, 2))
+        bucket = buckets.setdefault(
+            key,
+            {"count": 0, "crime_types": set(), "intensity": 0.0},
+        )
+        bucket["count"] = int(bucket["count"]) + 1
+        bucket["crime_types"].add(crime.offense_type)
+        bucket["intensity"] = min(1.0, float(bucket["intensity"]) + 0.2)
+
+    population_factor = 0.0
+    if demographics:
+        population_factor = min(1.0, sum(profile.population for profile in demographics) / max(len(demographics), 1) / 10000.0)
+
+    cells: list[HeatmapCell] = []
+    for (lat, lng), bucket in sorted(buckets.items(), key=lambda item: item[1]["count"], reverse=True)[:5]:
+        crime_types = sorted(bucket["crime_types"])
+        intensity = min(1.0, float(bucket["intensity"]) + population_factor * 0.1)
+        cells.append(
+            HeatmapCell(
+                lat=lat,
+                lng=lng,
+                intensity=intensity,
+                count=int(bucket["count"]),
+                crime_types=crime_types,
+                properties={"source": "aggregated"},
+            )
+        )
+
+    return cells
 
 
 class KnownLocationResolver:

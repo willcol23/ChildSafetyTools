@@ -11,10 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.eliminition.data.SyncRepository
 import com.eliminition.data.remote.SafetyApiService
+import com.eliminition.ui.activityTracker.ActivityTrackerScreen
 import com.eliminition.ui.landing.LandingScreen
 import com.eliminition.ui.map.ConfigScreen
 import com.eliminition.ui.map.HeatmapScreen
+import com.eliminition.ui.messanger.SecureMessengerScreen
+import com.eliminition.ui.vault.VaultScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -24,6 +28,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var safetyApi: SafetyApiService
 
+    @Inject
+    lateinit var syncRepository: SyncRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -32,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(safetyApi)
+                    AppNavigation(safetyApi, syncRepository)
                 }
             }
         }
@@ -40,16 +47,16 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation(api: SafetyApiService) {
+fun AppNavigation(api: SafetyApiService, repository: SyncRepository) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "landing") {
         composable("landing") {
             LandingScreen(
-                onNavigateToVault = { /* TODO: Implement Vault UI */ },
+                onNavigateToVault = { navController.navigate("vault") },
                 onNavigateToMap = { navController.navigate("map_config") },
-                onNavigateToMessenger = {},
-                onNavigateToTracker = {}
+                onNavigateToMessenger = { navController.navigate("messenger") },
+                onNavigateToTracker = { navController.navigate("tracker") }
             )
         }
         composable("map_config") {
@@ -66,6 +73,15 @@ fun AppNavigation(api: SafetyApiService) {
                 onBack = { navController.popBackStack() },
                 api = api
             )
+        }
+        composable("messenger") {
+            SecureMessengerScreen(api = api)
+        }
+        composable("tracker") {
+            ActivityTrackerScreen(api = api)
+        }
+        composable("vault") {
+            VaultScreen(repository = repository)
         }
     }
 }

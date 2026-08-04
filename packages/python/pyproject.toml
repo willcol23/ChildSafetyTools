@@ -9,5 +9,8 @@ description = "Shared child-safety domain, ports, and application services"
 requires-python = ">=3.11"
 dependencies = ["pydantic>=2,<3"]
 
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
