@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Child Safety Tools</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="card">
+      <section id="home-view" class="view active">
+        <h1>Welcome, Parent</h1>
+        <p>Select a tool to get started.</p>
+
+        <section class="menu-section" aria-label="Child safety tools menu">
+          <h2 class="menu-title">Child Safety Tools Menu</h2>
+          <div class="menu-list">
+            <button class="menu-button" data-view="location">Location Safety Map</button>
+            <button class="menu-button" data-view="connect">Stay Connected</button>
+            <button class="menu-button" data-view="alarm">Call for Help Alarm</button>
+            <button class="menu-button" data-view="profile">Child Profile Setup</button>
+          </div>
+        </section>
+      </section>
+
+      <section id="profile-view" class="view">
+        <button class="back-button" type="button" data-view="home">← Back to Home</button>
+        <h1>Child Profile Setup</h1>
+        <p>Create a profile for your child and attach important files such as photos, doctor records, or fingerprints.</p>
+
+        <form id="profile-form" class="profile-form">
+          <label>
+            <span>Name</span>
+            <input type="text" name="name" required />
+          </label>
+
+          <label>
+            <span>Date of Birth</span>
+            <input type="date" name="dob" required />
+          </label>
+
+          <label>
+            <span>Description</span>
+            <textarea name="description" rows="4" placeholder="Add notes about your child, needs, or medical details"></textarea>
+          </label>
+
+          <label>
+            <span>Attachments</span>
+            <input type="file" name="attachments" multiple />
+          </label>
+
+          <button class="menu-button" type="submit">Save Profile</button>
+        </form>
+
+        <p id="form-status" class="status" aria-live="polite"></p>
+
+        <section class="saved-profiles" aria-label="Saved profiles">
+          <h2>Saved Profiles</h2>
+          <ul id="profile-list"></ul>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

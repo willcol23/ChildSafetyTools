@@ -1,0 +1,15 @@
+{
+  "name": "child-profile-manager",
+  "version": "1.0.0",
+  "description": "A child profile setup app backed by MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.1",
+    "multer": "^1.9.0"
+  }
+}
