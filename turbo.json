@@ -1,8 +1,12 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "pipeline": {
+    "codegen": {
+      "inputs": ["openapi/**/*.yaml"],
+      "outputs": ["src/generated/**", "../python/src/child_safety_core/models/**", "../../apps/childSafetyMobile/generated/**"]
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "codegen"],
       "outputs": ["dist/**"]
     },
     "dev": {

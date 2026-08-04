@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import routes_heatmap
+from app.api import routes_heatmap, routes_vault
 
 app = FastAPI(title="Child Safety API", version="1.0.0")
 
@@ -13,6 +13,7 @@ app.add_middleware(
 )
 
 app.include_router(routes_heatmap.router)
+app.include_router(routes_vault.router)
 
 @app.get("/health")
 async def health_check():

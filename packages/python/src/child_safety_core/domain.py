@@ -39,3 +39,19 @@ class HeatmapOverlay(BaseModel):
     filters: dict[str, Any]
     cell_count: int
     cells: list[HeatmapCell]
+
+
+class Attachment(BaseModel):
+    id: str
+    name: str
+    content_type: str
+    url: str | None = None
+
+
+class ChildProfile(BaseModel):
+    id: str | None = None
+    name: str
+    dob: str
+    description: str | None = None
+    attachments: list[Attachment] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)

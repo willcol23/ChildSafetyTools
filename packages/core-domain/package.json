@@ -1,0 +1,6 @@
+{
+  "name": "@eliminition/core-domain",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Platform-agnostic business logic and interface definitions (Ports)."
+}

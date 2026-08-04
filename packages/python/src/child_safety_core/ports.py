@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from .domain import HeatmapOverlay, HeatmapQuery, LocationQuery, ResolvedLocation
+from .domain import ChildProfile, HeatmapOverlay, HeatmapQuery, LocationQuery, ResolvedLocation
 
 
 class LocationResolver(Protocol):
@@ -9,3 +9,19 @@ class LocationResolver(Protocol):
 
 class HeatmapService(Protocol):
     async def get_overlay(self, query: HeatmapQuery) -> HeatmapOverlay: ...
+
+
+class IdentityVaultPort(Protocol):
+    async def save_profile(self, profile: ChildProfile) -> ChildProfile: ...
+    async def get_profile(self, profile_id: str) -> ChildProfile | None: ...
+    async def list_profiles(self) -> list[ChildProfile]: ...
+
+
+class AttachmentStoragePort(Protocol):
+    async def upload(self, name: str, data: bytes, content_type: str) -> str: ...
+    async def download(self, attachment_id: str) -> bytes: ...
+
+
+class EncryptionPort(Protocol):
+    async def encrypt(self, data: str) -> str: ...
+    async def decrypt(self, encrypted_data: str) -> str: ...
