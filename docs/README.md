@@ -1,140 +1,127 @@
-Eliminition
-A Multi‑Platform Safety Suite for Parents, Guardians, and Families
-Eliminition is a platform‑agnostic collection of web and mobile applications designed to help protect children and dependents. The suite provides tools for communication, safety awareness, identity management, and activity tracking—supporting families during moments when a loved one becomes unreachable or may be in danger.
+# Eliminition
+A Multi-Platform Safety Suite for Parents, Guardians, and Families
 
-📦 Overview
+Eliminition is a platform-agnostic collection of web and mobile applications designed to help protect children and dependents. The suite provides tools for communication, safety awareness, identification, and location tracking.
+
+---
+
+## 📦 Overview
+
 Eliminition consists of four integrated applications, each addressing a different aspect of child safety:
 
-Secure Communication Tool
-
-Location Safety Map
-
-Personal Identification Vault
-
-Activity & Location Tracking
+1. **Secure Communication Tool** - Encrypted messaging for discreet help-seeking
+2. **Location Safety Map** - Data-driven regional safety analysis
+3. **Personal Identification Vault** - Secure repository for dependent information
+4. **Activity & Location Tracking** - Guardian visibility and emergency context
 
 Each application operates independently while contributing to a unified safety ecosystem.
 
-🔐 1. Secure Communication Tool
+---
+
+## 🔐 Features
+
+### 1. Secure Communication Tool
 A discreet, encrypted communication channel that allows individuals to reach out for help without drawing attention.
 
-Features:
+- Hidden or silent messaging modes
+- Secure routing to guardians or authorities
+- Designed for situations where the user fears being monitored
 
-Hidden or silent messaging modes
+### 2. Location Safety Map
+A data-driven map that helps families understand safety risks in specific cities or regions.
 
-Secure routing to guardians or authorities
+**Data sources:**
+- U.S. Census data
+- Local law enforcement records
+- Federal law enforcement databases
+- Missing persons databases
+- Crime statistics with filtering options
 
-Designed for situations where the user fears being monitored
+This tool supports informed decision-making for travel, relocation, and daily routines.
 
-🗺️ 2. Location Safety Map
-A data‑driven map that helps families understand safety risks in specific cities or regions.
-
-Data sources include:
-
-U.S. Census
-
-Local law enforcement
-
-Federal law enforcement
-
-Missing persons databases
-
-Crime statistics with filtering options
-
-This tool supports informed decision‑making for travel, relocation, and daily routines.
-
-🧾 3. Personal Identification Vault
+### 3. Personal Identification Vault
 A secure repository for storing essential identity information about a dependent.
 
-Current capabilities:
+**Current capabilities:**
+- Basic personal details (name, date of birth, address)
+- Contact information for teachers, caregivers, and regular points of interaction
 
-Basic personal details (name, date of birth, address)
+**Future enhancements:**
+- Medical records
+- Fingerprints
+- DNA reports
+- Additional documentation useful to law enforcement
 
-Contact information for teachers, caregivers, and regular points of interaction
+### 4. Activity & Location Tracking
+A monitoring tool that provides guardians with visibility into a dependent's movement history.
 
-Future enhancements may include:
+- Offer context during emergencies
+- Provide law enforcement with accurate location history
+- Increase peace of mind through transparent tracking
 
-Medical records
+---
 
-Fingerprints
+## 🛠 Tech Stack
 
-DNA reports
+- **Frontend**: JavaScript (56.3%)
+- **Backend**: Python (26.2%)
+- **Markup & Styling**: HTML (8.9%), CSS (8.6%)
 
-Additional documentation useful to law enforcement
+---
 
-📍 4. Activity & Location Tracking
-A monitoring tool that provides guardians with visibility into a dependent’s movement history.
+## 🧱 Architecture
 
-Purpose:
+```
+Backend (Azure) ──→ API / Auth ──→ Web App (React / VS Code)
+     ↓
+  REST / GraphQL
+     ↓
+Mobile App (Android Studio)
+     ↓
+  Shared Packages (Business Logic / Schemas / API Contracts)
+     ↓
+Infrastructure (Azure / CI/CD)
+     ↓
+Data Storage / Security / Monitoring
+```
 
-Offer context during emergencies
+### ☁️ Azure Deployment Architecture
 
-Provide law enforcement with accurate location history
+```
+┌─────────────────────────────────────────┐
+│         CI/CD Pipeline                  │
+│  GitHub Actions → Azure Deployment      │
+└─────────────────────────────────────────┘
+         ↓
+┌─────────────────────────────────────────┐
+│         Backend - Azure                 │
+├─────────────────────────────────────────┤
+│ • Azure Functions API                   │
+│ • API Management                        │
+│ • Key Vault                             │
+│ • Service Bus                           │
+│ • Blob Storage                          │
+│ • Cosmos DB                             │
+└─────────────────────────────────────────┘
+         ↓
+┌─────────────────────────────────────────┐
+│      Infrastructure & Monitoring        │
+├─────────────────────────────────────────┤
+│ • Azure Monitor                         │
+│ • Application Insights                  │
+│ • Log Analytics                         │
+└─────────────────────────────────────────┘
+```
 
-Increase peace of mind through transparent tracking
+---
 
-🧱 Architecture
-mermaid
-graph TD
-    A[Backend (Azure)] -->|API / Auth| B[Web App (React / VS Code)]
-    A -->|REST / GraphQL| C[Mobile App (Android Studio)]
-    B --> D[Shared Packages]
-    C --> D
-    D --> E[Business Logic / Schemas / API Contracts]
-    A --> F[Infrastructure (Azure / CI/CD)]
-    F --> G[Data Storage / Security / Monitoring]
-☁️ Azure Deployment Architecture
-mermaid
-flowchart TD
+## 📁 Repository Structure
 
-    subgraph CI[CI/CD Pipeline]
-        GH[GitHub Actions] --> AZD[Azure Deployment]
-    end
-
-    subgraph BE[Backend - Azure]
-        AF[Azure Functions API]
-        APIM[API Management]
-        KV[Key Vault]
-        SB[Service Bus]
-        ST[Blob Storage]
-        COS[Cosmos DB]
-    end
-
-    subgraph INF[Infrastructure]
-        MON[Azure Monitor]
-        APPI[Application Insights]
-        LOG[Log Analytics]
-    end
-
-    subgraph CLIENTS[Client Applications]
-        WEB[Web App (React)]
-        MOB[Mobile App (Android)]
-    end
-
-    %% CI/CD Flow
-    GH --> AZD --> AF
-    GH --> AZD --> APIM
-
-    %% Backend Connections
-    AF --> ST
-    AF --> COS
-    AF --> SB
-    AF --> KV
-
-    %% Monitoring
-    AF --> APPI
-    APPI --> MON
-    MON --> LOG
-
-    %% Client Connections
-    WEB --> APIM
-    MOB --> APIM
-📁 Repository Structure
-Code
+```
 eliminition/
 ├── apps/
 │   ├── backend/        # Azure Functions / API
-│   ├── web/            # Web application
+│   ├── web/            # Web application (React)
 │   └── mobile/         # Android application
 │
 ├── packages/
@@ -150,64 +137,79 @@ eliminition/
 │
 ├── docs/               # Architecture & onboarding
 └── README.md
-⚙️ Installation & Setup
-Prerequisites
-Node.js (v18+)
+```
 
-Android Studio (latest)
+---
 
-Visual Studio Code
+## ⚙️ Installation & Setup
 
-Azure CLI
+### Prerequisites
+- Node.js (v18+)
+- Android Studio (latest)
+- Visual Studio Code
+- Azure CLI
 
-Steps
-Clone the repository:
+### Steps
 
-bash
-git clone https://github.com/<your-org>/eliminition.git
-cd eliminition
-Install dependencies:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/<your-org>/eliminition.git
+   cd eliminition
+   ```
 
-bash
-npm install
-Configure environment variables:
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-bash
-cp .env.example .env
-Start development servers:
+3. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
 
-bash
-npm run dev
-🚀 Roadmap
-Expand secure communication features
+4. **Start development servers:**
+   ```bash
+   npm run dev
+   ```
 
-Integrate additional law enforcement data sources
+---
 
-Add advanced identity storage (medical, biometric)
+## 🚀 Roadmap
 
-Enhance tracking accuracy and reporting
+- [ ] Expand secure communication features
+- [ ] Integrate additional law enforcement data sources
+- [ ] Add advanced identity storage (medical, biometric)
+- [ ] Enhance tracking accuracy and reporting
+- [ ] Introduce guardian dashboards and alerting systems
 
-Introduce guardian dashboards and alerting systems
+---
 
-🔒 Security & Privacy
-Eliminition is designed with privacy and data protection at its core.
-All sensitive data is encrypted at rest and in transit.
-Access controls ensure that only authorized guardians and verified authorities can view or share information.
+## 🔒 Security & Privacy
 
-🤝 Contributing
-Contributions are welcome!
-Please open an issue or submit a pull request to discuss proposed changes.
+Eliminition is designed with privacy and data protection at its core:
+- All sensitive data is encrypted at rest and in transit
+- Access controls ensure only authorized guardians and verified authorities can view or share information
+- Regular security audits and compliance checks
 
-Guidelines:
+---
 
-Follow the existing code style and linting rules.
+## 🤝 Contributing
 
-Write clear commit messages.
+Contributions are welcome! Please follow these guidelines:
 
-Include tests for new features.
+1. Open an issue or submit a pull request to discuss proposed changes
+2. Follow the existing code style and linting rules
+3. Write clear commit messages
+4. Include tests for new features
 
-📄 License
+---
+
+## 📄 License
+
 (Add your license information here.)
 
-🧠 Mission Statement
+---
+
+## 🧠 Mission Statement
+
 Empowering families with technology that safeguards the vulnerable and strengthens community trust.
