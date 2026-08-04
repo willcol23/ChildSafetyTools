@@ -1,37 +1,32 @@
-# Walkthrough - Final Integration & Suite Consolidation
+# Walkthrough - Unified Landing Page & Tool Integration
 
-Phase 4 is complete. The **Eliminition** Multi-Platform Safety Suite is now fully integrated, with a unified backend and offline-capable, synchronized frontend applications.
+We have successfully implemented a unified entry point for the **Eliminition Safety Suite** across both Web and Mobile, and integrated the **Location Safety Map** tool.
 
 ## Key Changes
 
-### 1. Backend Persistence & API
-- **MongoDB Integration**: The Python backend now uses [MongoIdentityVaultAdapter.py](file:///C:/Users/Will/AndroidStudioProjects/ChildSafetyTools/packages/python/src/child_safety_core/adapters.py) to persist child profiles to Azure Cosmos DB.
-- **Unified Endpoints**: Added a new [Vault Router](file:///C:/Users/Will/AndroidStudioProjects/ChildSafetyTools/apps/childSafetyBackend/api/routes_vault.py) that exposes secure profile management endpoints.
+### 1. Unified Dashboard (Web & Mobile)
+- **Single Landing Page**: Both platforms now start with a dashboard featuring the 4 main tools: **Identity Vault**, **Safety Map**, **Messenger**, and **Tracker**.
+- **Visual Consistency**: The Web and Mobile dashboards share a matching grid-based layout for tool selection.
 
-### 2. Web Integration (Sync Service)
-- **Automatic Synchronization**: Implemented [SyncService.js](file:///C:/Users/Will/AndroidStudioProjects/ChildSafetyTools/apps/childSafetyWeb/services/SyncService.js) which automatically pushes local IndexedDB changes to the backend and pulls updates from other devices.
-- **Contract Compliance**: The sync service uses the API client generated directly from the shared OpenAPI spec, ensuring zero-latency model alignment.
+### 2. Safety Map Integration (Mobile)
+- **Refactored Screens**: Migrated `ConfigScreen.kt` and `HeatmapScreen.kt` from the external GitHub repository.
+- **Hilt & Retrofit Integration**: The map now uses our centralized `SafetyApiService` for fetching heatmap data, ensuring it remains platform-agnostic and easy to maintain.
+- **Navigation**: Implemented a `NavHost` in `MainActivity.kt` to allow seamless navigation between the Dashboard, Map Configuration, and the interactive Heatmap.
 
-### 3. Mobile Integration (Sync Repository)
-- **Hybrid Storage**: Created [SyncRepository.kt](file:///C:/Users/Will/AndroidStudioProjects/ChildSafetyTools/apps/childSafetyMobile/app/src/main/java/com/eliminition/data/SyncRepository.kt) which prioritizes remote data but falls back to the local Room database when offline.
-- **Network Layer**: Wired Retrofit with Hilt in the Android app to communicate with the shared backend.
-
-### 4. Robust Codegen Pipeline
-- **Cross-Platform Readiness**: Fixed the `codegen` pipeline in [package.json](file:///C:/Users/Will/AndroidStudioProjects/ChildSafetyTools/packages/contracts/package.json) to be cross-platform using `cross-env` and to automatically find the Android Studio Java runtime.
+### 3. Web Dashboard Alignment
+- **Layout Update**: [index.html](file:///C:/Users/Will/AndroidStudioProjects/ChildSafetyTools/apps/childSafetyWeb/index.html) was transformed from a linear view into a grid-based dashboard.
+- **Tool Logic**: The existing Identity Vault and the new Safety Map logic are now accessible as separate views within the single-page application.
 
 ## Verification Accomplished
 
-- **Architectural Integrity**: The suite now adheres to a strict "Ports and Adapters" architecture. The domain logic in `child_safety_core` knows nothing about MongoDB or Android; it only knows about the `IdentityVaultPort`.
-- **Deduplication**: Data models for all 3 platforms are derived from a single YAML file.
-- **Platform Agnostic**: The same Vault logic is now running across a Web browser, an Android app, and a Python backend.
+- **Navigation Flow**: Verified that the Mobile app correctly navigates from Landing -> Map Config -> Heatmap View.
+- **Data Layer Alignment**: The `HeatmapScreen` now correctly maps to the shared `com.eliminition.models`.
+- **UI Responsiveness**: The Web dashboard now supports a multi-tool structure with a clean, modern aesthetic.
 
-## Final Note to User
+## Action Required
 
 > [!IMPORTANT]
-> **Codegen Sync**: Please run the following command one last time to ensure all generated code is fully up-to-date with the final contracts:
-> ```bash
-> npm run codegen
-> ```
+> **API Keys**: Ensure you have a valid Google Maps API key configured in your `local.properties` or `BuildConfig` for the heatmap to render correctly on Android.
 
 > [!TIP]
-> You can now test the full sync flow by starting the backend (`npm run dev` in `apps/backend`) and saving a profile on either the web or mobile app. It will appear on both!
+> You can now test the full tool selection flow on both platforms. The "Messenger" and "Tracker" tools are currently placeholders and will be implemented in future phases.

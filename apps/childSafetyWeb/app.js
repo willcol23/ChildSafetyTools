@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  navButtons.forEach((button) => {
+  document.querySelectorAll('[data-view]').forEach((button) => {
     button.addEventListener('click', () => {
       showView(button.dataset.view);
     });

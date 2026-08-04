@@ -5,9 +5,9 @@
   "description": "OpenAPI specifications and shared API clients.",
   "scripts": {
     "codegen": "npm run codegen:ts && npm run codegen:python && npm run codegen:kotlin",
-    "codegen:ts": "cross-env JAVA_HOME=\"C:\\Program Files\\Android\\Android Studio\\jbr\" openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g typescript-fetch -o src/generated",
-    "codegen:python": "cross-env JAVA_HOME=\"C:\\Program Files\\Android\\Android Studio\\jbr\" openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g python -o ../python/src/child_safety_core/models --additional-properties=library=pydantic-v2,packageName=child_safety_core.models",
-    "codegen:kotlin": "cross-env JAVA_HOME=\"C:\\Program Files\\Android\\Android Studio\\jbr\" openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g kotlin -o ../../apps/childSafetyMobile/generated --additional-properties=packageName=com.eliminition.models"
+    "codegen:ts": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g typescript-fetch -o src/generated",
+    "codegen:python": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g python-pydantic-v2 -o ../python/src/child_safety_core/models --additional-properties=packageName=child_safety_core.models",
+    "codegen:kotlin": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g kotlin -o ../../apps/childSafetyMobile/generated --additional-properties=packageName=com.eliminition.models"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.13.0",
