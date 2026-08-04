@@ -1,4 +1,4 @@
-import { SafetyApiClient } from '../../api/safety-api-client.js';
+import { SafetyApiClient } from '../api/safety-api-client.js';
 
 export function initLocationSafetyMapModule(apiClient = new SafetyApiClient()) {
   const form = document.getElementById('location-form');

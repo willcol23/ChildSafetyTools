@@ -1,7 +1,7 @@
-import { initChildProfileModule } from './apps/child-profile/index.js';
-import { initLocationSafetyMapModule } from './apps/location-safety-map/index.js';
-import { initStayConnectedModule } from './apps/stay-connected/index.js';
-import { initCallForHelpAlarmModule } from './apps/call-for-help-alarm/index.js';
+import { initChildProfileModule } from './child-profile/index.js';
+import { initLocationSafetyMapModule } from './location-safety-map/index.js';
+import { initStayConnectedModule } from './stay-connected/index.js';
+import { initCallForHelpAlarmModule } from './call-for-help-alarm/index.js';
 
 const views = document.querySelectorAll('.view');
 const menuButtons = document.querySelectorAll('[data-view]');

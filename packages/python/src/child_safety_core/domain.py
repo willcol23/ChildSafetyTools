@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -41,6 +42,24 @@ class HeatmapOverlay(BaseModel):
     cells: list[HeatmapCell]
 
 
+class CrimeEvent(BaseModel):
+    id: str
+    lat: float
+    lon: float
+    offense_type: str
+    date: datetime | None = None
+    victim_age: int | None = None
+    victim_sex: str | None = None
+    agency_ori: str | None = None
+
+
+class DemographicProfile(BaseModel):
+    area_id: str
+    population: int
+    median_income: float
+    median_age: float
+
+
 class Attachment(BaseModel):
     id: str
     name: str
@@ -55,3 +74,20 @@ class ChildProfile(BaseModel):
     description: str | None = None
     attachments: list[Attachment] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class LocationEvent(BaseModel):
+    profileId: str
+    location: Location
+    timestamp: datetime
+    activity_type: str | None = None
+    battery_level: float | None = None
+
+
+class SecureMessage(BaseModel):
+    id: str | None = None
+    senderId: str
+    recipientId: str
+    body: str
+    timestamp: int | None = None
+    isEncrypted: bool = True

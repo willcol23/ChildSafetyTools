@@ -1,8 +1,8 @@
 from typing import List
-from ..models.heatmap_cell import HeatmapCell
-from ..models.crime_event import CrimeEvent
-from ..models.demographic_profile import DemographicProfile
+
+from child_safety_core.domain import CrimeEvent, DemographicProfile, HeatmapCell
+from child_safety_core.services import aggregate_heatmap as aggregate_heatmap_shared
+
 
 def aggregate_heatmap(crimes: List[CrimeEvent], demographics: List[DemographicProfile]) -> List[HeatmapCell]:
-    # Grid binning and scoring logic will go here
-    return []
+    return aggregate_heatmap_shared(crimes, demographics)
