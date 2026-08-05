@@ -1,18 +1,19 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    id("com.android.built-in-kotlin")
     alias(libs.plugins.hilt)
-    id("kotlin-kapt")
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.legacy.kapt)
 }
 
 android {
     namespace = "com.eliminition"
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.eliminition"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -35,24 +36,25 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+
     sourceSets {
         getByName("main") {
-            java.srcDirs("src/main/java", "../generated/src/main/kotlin")
+            kotlin.directories.add("../generated/src/main/kotlin")
         }
     }
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
@@ -67,7 +69,12 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.maps.compose)
+    implementation(libs.google.maps.compose)
+    implementation(libs.google.maps.utils)
     implementation(libs.play.services.maps)
+    
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

@@ -14,6 +14,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.eliminition.data.remote.SafetyApiService
 import com.eliminition.data.remote.SecureMessagePayload
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 
@@ -35,6 +37,7 @@ data class SecureMessage(
     val isEncrypted: Boolean = true,
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecureMessengerScreen(
     api: SafetyApiService,
