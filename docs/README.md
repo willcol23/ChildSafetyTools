@@ -167,14 +167,54 @@ eliminition/
    cp .env.example .env
    ```
 
-4. **Start development servers:**
+4. **Start the backend server:**
+   
+   The FastAPI backend runs on `http://localhost:8000`
+   
+   **Option A: Using VS Code Tasks (Recommended)**
+   - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+   - Search for "Tasks: Run Task"
+   - Select "Start Backend Server"
+   
+   **Option B: Manual command**
+   ```bash
+   # From the project root
+   .venv/Scripts/python.exe -m uvicorn apps.childSafetyBackend.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+   
+   The backend will:
+   - Run with auto-reload enabled (changes reflected instantly)
+   - Be accessible at `http://0.0.0.0:8000`
+   - Expose API documentation at `http://localhost:8000/docs`
+   - Provide health check at `http://localhost:8000/health`
+
+5. **Start development servers:**
    ```bash
    npm run dev
    ```
 
 ---
 
-## 🚀 Roadmap
+## � Backend API
+
+The FastAPI backend provides RESTful endpoints for all applications:
+
+### Available Endpoints
+
+- **Health Check**: `GET /health`
+- **Heatmap Overlay**: `GET /v1/heatmaps/overlay?city=Columbus&state=OH&radius_km=8&crime_type=all`
+- **Location Resolution**: `GET /v1/locations:resolve?city=Columbus&state=OH`
+- **Vault**: Various endpoints under `/v1/vault/*`
+- **Tracker**: Various endpoints under `/v1/tracker/*`
+- **Communication**: Various endpoints under `/v1/communication/*`
+
+### API Documentation
+
+Interactive API documentation is available at: `http://localhost:8000/docs`
+
+---
+
+## �🚀 Roadmap
 
 - [ ] Expand secure communication features
 - [ ] Integrate additional law enforcement data sources
