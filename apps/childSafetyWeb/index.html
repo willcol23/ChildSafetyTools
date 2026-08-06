@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eliminition Safety Suite</title>
     <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
   </head>
   <body>
     <main class="card">
@@ -64,17 +70,27 @@
           <div class="form-group">
             <input type="text" name="city" placeholder="City (e.g. Columbus)" required />
             <input type="text" name="state" placeholder="State (e.g. OH)" maxlength="2" required />
+            <select name="crime_type" aria-label="Crime Type">
+              <option value="all" selected>All Crime Types</option>
+              <option value="violent">Violent Crime</option>
+              <option value="property">Property Crime</option>
+            </select>
           </div>
           <button class="menu-button" type="submit">Load Heatmap</button>
         </form>
         <div id="location-status" class="status"></div>
-        <div id="map" style="height: 400px; background: #eee; margin-top: 20px; border-radius: 8px;"></div>
+        <div id="map"></div>
       </section>
     </main>
 
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
     <script src="app.js"></script>
     <script type="module">
-      import { initLocationSafetyMapModule } from './location-safety-map/index.js';
+      import { initLocationSafetyMapModule } from './safetyTools/location-safety-map/index.js';
       initLocationSafetyMapModule();
     </script>
   </body>

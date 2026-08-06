@@ -1,14 +1,64 @@
-import { SafetyApiClient } from '../api/safety-api-client.js';
+import { SafetyApiClient } from '../../api/safety-api-client.js';
 
 export function initLocationSafetyMapModule(apiClient = new SafetyApiClient()) {
   const form = document.getElementById('location-form');
   const status = document.getElementById('location-status');
+  const submitButton = form?.querySelector("button[type='submit']");
   let mapInstance = null;
   let heatmapLayer = null;
   let mapProvider = null;
+  let lastSubmittedQueryKey = '';
+  let isSubmitting = false;
 
   if (!form || !status) {
     return;
+  }
+
+  function buildQueryKey(query) {
+    return `${query.city}|${query.state}|${query.crimeType}`;
+  }
+
+  function getCurrentQuery() {
+    const formData = new FormData(form);
+    return {
+      city: formData.get('city')?.toString().trim() || 'Columbus',
+      state: (formData.get('state')?.toString().trim() || 'OH').toUpperCase(),
+      crimeType: (formData.get('crime_type')?.toString().trim() || 'all').toLowerCase()
+    };
+  }
+
+  function refreshSubmitState() {
+    if (!submitButton) {
+      return;
+    }
+
+    const hasPendingChanges = buildQueryKey(getCurrentQuery()) !== lastSubmittedQueryKey;
+    submitButton.disabled = isSubmitting;
+    submitButton.textContent = isSubmitting
+      ? 'Loading...'
+      : (hasPendingChanges ? 'Update Heatmap' : 'Reload Heatmap');
+  }
+
+  function onQueryFieldChange() {
+    refreshSubmitState();
+    if (!lastSubmittedQueryKey || isSubmitting) {
+      return;
+    }
+
+    const hasPendingChanges = buildQueryKey(getCurrentQuery()) !== lastSubmittedQueryKey;
+    if (hasPendingChanges) {
+      status.textContent = 'Parameters changed. Click Update Heatmap to refresh the map.';
+      status.className = 'status';
+    }
+  }
+
+  function resolveMapCenter(overlayData, resolvedLocation) {
+    const fallback = overlayData?.location || {};
+    const resolved = resolvedLocation?.location || {};
+    return {
+      lat: Number.isFinite(resolved.lat) ? resolved.lat : fallback.lat,
+      lng: Number.isFinite(resolved.lng) ? resolved.lng : fallback.lng
+    };
   }
 
   function clearMap() {
@@ -59,7 +109,7 @@ export function initLocationSafetyMapModule(apiClient = new SafetyApiClient()) {
   function renderMap(lat, lng, cells = []) {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) {
-      return;
+      return false;
     }
 
     clearMap();
@@ -83,12 +133,11 @@ export function initLocationSafetyMapModule(apiClient = new SafetyApiClient()) {
         });
         mapInstance.markers.add(marker);
       }
-      return;
+      return true;
     }
 
     if (!window.L) {
-      status.textContent = 'Leaflet is not available.';
-      return;
+      return false;
     }
 
     mapInstance = window.L.map('map').setView([lat, lng], 12);
@@ -101,35 +150,85 @@ export function initLocationSafetyMapModule(apiClient = new SafetyApiClient()) {
     window.L.marker([lat, lng]).addTo(mapInstance).bindPopup('Selected location').openPopup();
 
     cells.forEach((cell) => {
-      window.L.circle([cell.lat, cell.lng], {
+      const circle = window.L.circle([cell.lat, cell.lng], {
         radius: Math.max(600, cell.intensity * 2500),
         color: '#ef4444',
         fillColor: '#f87171',
         fillOpacity: 0.3
       }).addTo(mapInstance);
+
+      const crimeTypesLabel = Array.isArray(cell.crime_types) && cell.crime_types.length
+        ? cell.crime_types.join(', ')
+        : 'Unknown';
+      const intensityLabel = Number.isFinite(cell.intensity) ? cell.intensity.toFixed(2) : 'n/a';
+      circle.bindTooltip(
+        `Incidents: ${cell.count || 0}<br>Intensity: ${intensityLabel}<br>Crime Types: ${crimeTypesLabel}`,
+        { sticky: true }
+      );
+      circle.on('mouseover', () => circle.openTooltip());
+      circle.on('mouseout', () => circle.closeTooltip());
     });
+
+    return true;
   }
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  form.addEventListener('input', onQueryFieldChange);
+  form.addEventListener('change', onQueryFieldChange);
+
+  refreshSubmitState();
+
+  async function refreshMapByParameters(forceRerender = false) {
+    const query = getCurrentQuery();
+    const queryKey = buildQueryKey(query);
+    const shouldRerender = forceRerender || queryKey !== lastSubmittedQueryKey;
+
+    if (!shouldRerender) {
+      status.textContent = 'Parameters unchanged. Click Reload Heatmap to refetch and rerender anyway.';
+      status.className = 'status';
+      refreshSubmitState();
+      return;
+    }
+
+    isSubmitting = true;
+    refreshSubmitState();
     status.textContent = 'Loading map data...';
     status.className = 'status';
 
-    const formData = new FormData(form);
-    const city = formData.get('city')?.toString().trim() || 'Columbus';
-    const state = formData.get('state')?.toString().trim() || 'OH';
-    const databases = (formData.get('databases')?.toString().trim() || 'Default').replace(/\s+/g, '');
-
     try {
-        const overlayData = await apiClient.getHeatmapOverlay({ city, state });
+      const [overlayResult, centerResult] = await Promise.allSettled([
+        apiClient.getHeatmapOverlay(query),
+        apiClient.getMapCenter(query)
+      ]);
 
-        await loadAzureMaps();
-        renderMap(overlayData.location.lat, overlayData.location.lng, overlayData.cells || []);
+      if (overlayResult.status !== 'fulfilled') {
+        throw overlayResult.reason;
+      }
 
-        status.textContent = `Showing ${overlayData.cell_count || (overlayData.cells || []).length} overlay cells for ${city}, ${state}.`;
-        status.className = 'status success';
+      const overlayData = overlayResult.value;
+      const resolvedLocation = centerResult.status === 'fulfilled' ? centerResult.value : null;
+
+      await loadAzureMaps();
+      const center = resolveMapCenter(overlayData, resolvedLocation);
+      const rendered = renderMap(center.lat, center.lng, overlayData.cells || []);
+      if (!rendered) {
+        throw new Error('Unable to render map. Confirm Azure Maps key or Leaflet availability.');
+      }
+
+      lastSubmittedQueryKey = queryKey;
+      const selectedCrimeLabel = query.crimeType === 'all' ? 'all crime types' : query.crimeType;
+      const refreshedAt = new Date().toLocaleTimeString();
+      status.textContent = `Showing ${overlayData.cell_count || (overlayData.cells || []).length} overlay cells for ${query.city}, ${query.state} (${selectedCrimeLabel}). Refreshed at ${refreshedAt}.`;
+      status.className = 'status success';
     } catch (error) {
       status.textContent = `Error: ${error.message}`;
       status.className = 'status error';
+    } finally {
+      isSubmitting = false;
+      refreshSubmitState();
     }
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    await refreshMapByParameters(true);
   });
 }
