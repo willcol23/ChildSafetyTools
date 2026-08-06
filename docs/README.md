@@ -188,7 +188,32 @@ eliminition/
    - Expose API documentation at `http://localhost:8000/docs`
    - Provide health check at `http://localhost:8000/health`
 
-5. **Start development servers:**
+5. **Start the web app server:**
+
+   The web app server runs on `http://localhost:3000`
+
+   **Option A: Using VS Code Tasks (Recommended)**
+   - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+   - Search for "Tasks: Run Task"
+   - Select "Start Web Server (npm.cmd)"
+
+   **Option B: Manual command**
+   ```bash
+   # From the project root
+   cd apps/childSafetyWeb
+   npm.cmd run start
+   ```
+
+6. **Open the initial page from the running server:**
+
+   - Open `http://localhost:3000` in your browser
+   - Do not open `index.html` directly from file explorer (file://), because API requests will fail
+
+7. **Run frontend and backend together (optional):**
+
+   - Use VS Code task "Start Frontend & Backend"
+
+8. **Start development servers (monorepo):**
    ```bash
    npm run dev
    ```

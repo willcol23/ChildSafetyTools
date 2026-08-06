@@ -128,6 +128,20 @@ app.get('/api/safety/heatmaps/overlay', async (req, res) => {
   }
 });
 
+app.get('/api/safety/locations/resolve', async (req, res) => {
+  try {
+    const payload = await requestBackend('/v1/locations:resolve', {
+      city: req.query.city,
+      state: req.query.state
+    });
+
+    res.json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
 app.get('/api/config', (_req, res) => {
   res.json({ azureMapsApiKey });
 });
