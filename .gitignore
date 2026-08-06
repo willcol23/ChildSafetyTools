@@ -44,3 +44,23 @@ local.properties
 .externalNativeBuild
 .cxx
 /build
+
+# Gradle caches and wrapper outputs
+.gradle/
+gradle/
+gradle/wrapper/gradle-wrapper.jar
+gradlew
+gradlew.bat
+
+# IDE / Copilot artifacts
+.artifacts/
+.run/
+
+# Generated Android resources
+app/src/main/res/mipmap-*/
+app/src/main/res/drawable/
+**/res/mipmap-*/
+**/res/drawable/
+
+# Stray module build outputs
+safetyTools/
