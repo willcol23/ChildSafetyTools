@@ -133,6 +133,123 @@ paths:
         '202':
           description: Event accepted for processing
 
+  /v1/tracker/policies:
+    post:
+      summary: Save tracker policy settings for a dependent profile
+      operationId: setTrackerPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackerPolicyRequest'
+      responses:
+        '200':
+          description: Tracker policy persisted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerPolicyResponse'
+
+  /v1/tracker/policies/{profileId}:
+    get:
+      summary: Get tracker policy for a dependent profile
+      operationId: getTrackerPolicy
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Tracker policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerPolicyResponse'
+
+  /v1/tracker/history/{profileId}:
+    get:
+      summary: Get tracker location history with viewer-based privacy redaction
+      operationId: getTrackerHistory
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: viewerRole
+          in: query
+          required: false
+          schema: { type: string, default: guardian }
+      responses:
+        '200':
+          description: Tracker history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerHistoryResponse'
+
+  /v1/tracker/history/{profileId}:export:
+    post:
+      summary: Create signed tracker history export for authority or guardian workflows
+      operationId: exportTrackerHistory
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackerExportRequest'
+      responses:
+        '200':
+          description: Signed export generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerExportResponse'
+
+  /v1/tracker/exports/{exportId}:
+    get:
+      summary: Retrieve signed tracker export payload by export ID with expiry enforcement
+      operationId: getTrackerExport
+      parameters:
+        - name: exportId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Signed export bundle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerExportBundleResponse'
+        '404':
+          description: Export not found
+        '410':
+          description: Export expired
+
+  /v1/tracker/audit/{profileId}:
+    get:
+      summary: Get tracker access and export audit events
+      operationId: getTrackerAudit
+      parameters:
+        - name: profileId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Tracker audit entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackerAuditResponse'
+
   # --- Secure Communication Endpoints ---
   /v1/communication/messages:
     post:
@@ -151,6 +268,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SecureMessage'
+
+  # --- Emergency Alert Endpoints ---
+  /v1/alerts/help:
+    post:
+      summary: Create a discreet emergency help alert
+      operationId: createHelpAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelpAlertRequest'
+      responses:
+        '201':
+          description: Help alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpAlertResponse'
+
+  /v1/alerts/help/{alertId}/locations:
+    post:
+      summary: Append a location sample for an active help alert
+      operationId: appendHelpAlertLocation
+      parameters:
+        - name: alertId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelpAlertLocationRequest'
+      responses:
+        '202':
+          description: Location accepted for alert tracking
+
+  /v1/alerts/maintenance/purge:
+    post:
+      summary: Purge expired help alerts based on retention policy
+      operationId: purgeExpiredHelpAlerts
+      responses:
+        '200':
+          description: Purge run completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpAlertPurgeResponse'
 
 components:
   parameters:
@@ -243,3 +410,153 @@ components:
         body: { type: string, description: "Plaintext or encrypted payload depending on the client" }
         timestamp: { type: integer, format: int64 }
         isEncrypted: { type: boolean, default: true }
+
+    HelpAlertLocation:
+      type: object
+      required: [lat, lng, captured_at]
+      properties:
+        lat: { type: number }
+        lng: { type: number }
+        accuracy_m: { type: number, minimum: 0 }
+        captured_at: { type: string, format: date-time }
+
+    HelpAlertRequest:
+      type: object
+      required: [profileId, recipientId, encryptedPayload]
+      properties:
+        profileId: { type: string }
+        recipientId: { type: string }
+        encryptedPayload: { type: string, description: "Ciphertext payload for the emergency message" }
+        channel: { type: string, default: guardian }
+        hiddenMode: { type: boolean, default: true }
+        retentionMinutes: { type: integer, minimum: 5, maximum: 10080, description: "Retention duration in minutes" }
+        location:
+          $ref: '#/components/schemas/HelpAlertLocation'
+
+    HelpAlertResponse:
+      type: object
+      required: [alertId, status, createdAt, expiresAt]
+      properties:
+        alertId: { type: string }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+
+    HelpAlertLocationRequest:
+      type: object
+      required: [location]
+      properties:
+        location:
+          $ref: '#/components/schemas/HelpAlertLocation'
+
+    HelpAlertPurgeResponse:
+      type: object
+      required: [purged, active]
+      properties:
+        purged: { type: integer, minimum: 0 }
+        active: { type: integer, minimum: 0 }
+
+    TrackerPolicyRequest:
+      type: object
+      required: [profileId]
+      properties:
+        profileId: { type: string }
+        mode: { type: string, enum: [off, emergency-only, scheduled, continuous-guardian], default: emergency-only }
+        retentionHours: { type: integer, minimum: 1, maximum: 720, default: 24 }
+        precisionMode: { type: string, enum: [high-emergency, balanced, coarse-default], default: high-emergency }
+        allowAuthorityExport: { type: boolean, default: true }
+        allowedViewers:
+          type: array
+          items: { type: string }
+
+    TrackerPolicyResponse:
+      type: object
+      required: [profileId, mode, retentionHours, precisionMode, allowAuthorityExport, allowedViewers, updatedAt]
+      properties:
+        profileId: { type: string }
+        mode: { type: string }
+        retentionHours: { type: integer }
+        precisionMode: { type: string }
+        allowAuthorityExport: { type: boolean }
+        allowedViewers:
+          type: array
+          items: { type: string }
+        updatedAt: { type: string, format: date-time }
+
+    TrackerHistoryResponse:
+      type: object
+      required: [profileId, viewerRole, eventCount, events]
+      properties:
+        profileId: { type: string }
+        viewerRole: { type: string }
+        eventCount: { type: integer, minimum: 0 }
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocationEvent'
+
+    TrackerExportRequest:
+      type: object
+      required: [requestedBy]
+      properties:
+        requestedBy: { type: string }
+        role: { type: string, default: authority }
+        scope: { type: string, default: last-24h }
+        expiresInMinutes: { type: integer, minimum: 5, maximum: 1440, default: 60 }
+
+    TrackerExportResponse:
+      type: object
+      required: [exportId, profileId, requestedBy, scope, generatedAt, expiresAt, eventCount, checksum, signature]
+      properties:
+        exportId: { type: string }
+        profileId: { type: string }
+        requestedBy: { type: string }
+        scope: { type: string }
+        generatedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        eventCount: { type: integer, minimum: 0 }
+        checksum: { type: string }
+        signature: { type: string }
+
+    TrackerExportBundleResponse:
+      type: object
+      required: [exportId, profileId, requestedBy, role, scope, generatedAt, expiresAt, eventCount, checksum, signature, signatureValid, events]
+      properties:
+        exportId: { type: string }
+        profileId: { type: string }
+        requestedBy: { type: string }
+        role: { type: string }
+        scope: { type: string }
+        generatedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        eventCount: { type: integer, minimum: 0 }
+        checksum: { type: string }
+        signature: { type: string }
+        signatureValid: { type: boolean }
+        events:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    TrackerAuditEntry:
+      type: object
+      required: [id, profileId, action, actor, createdAt, metadata]
+      properties:
+        id: { type: string }
+        profileId: { type: string }
+        action: { type: string }
+        actor: { type: string }
+        createdAt: { type: string, format: date-time }
+        metadata: { type: object, additionalProperties: true }
+
+    TrackerAuditResponse:
+      type: object
+      required: [profileId, count, entries]
+      properties:
+        profileId: { type: string }
+        count: { type: integer, minimum: 0 }
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrackerAuditEntry'

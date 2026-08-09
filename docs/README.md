@@ -26,6 +26,8 @@ A discreet, encrypted communication channel that allows individuals to reach out
 - Hidden or silent messaging modes
 - Secure routing to guardians or authorities
 - Designed for situations where the user fears being monitored
+- Call-for-help alarm with default or custom emergency message modes
+- Decoy screen option and quick-hide behavior for stealth use
 
 ### 2. Location Safety Map
 A data-driven map that helps families understand safety risks in specific cities or regions.
@@ -58,6 +60,10 @@ A monitoring tool that provides guardians with visibility into a dependent's mov
 - Offer context during emergencies
 - Provide law enforcement with accurate location history
 - Increase peace of mind through transparent tracking
+- Guardian PIN gate for tracker settings access
+- Policy-based retention and precision controls
+- Signed, time-limited export bundles for authority workflows
+- Audit trail for policy updates, history reads, exports, and export retrieval
 
 ---
 
@@ -230,8 +236,44 @@ The FastAPI backend provides RESTful endpoints for all applications:
 - **Heatmap Overlay**: `GET /v1/heatmaps/overlay?city=Columbus&state=OH&radius_km=8&crime_type=all`
 - **Location Resolution**: `GET /v1/locations:resolve?city=Columbus&state=OH`
 - **Vault**: Various endpoints under `/v1/vault/*`
-- **Tracker**: Various endpoints under `/v1/tracker/*`
+- **Tracker**:
+   - `POST /v1/tracker/events`
+   - `POST /v1/tracker/policies`
+   - `GET /v1/tracker/policies/{profileId}`
+   - `GET /v1/tracker/history/{profileId}`
+   - `POST /v1/tracker/history/{profileId}:export`
+   - `GET /v1/tracker/exports/{exportId}`
+   - `GET /v1/tracker/audit/{profileId}`
 - **Communication**: Various endpoints under `/v1/communication/*`
+- **Alerts**:
+   - `POST /v1/alerts/help`
+   - `POST /v1/alerts/help/{alertId}/locations`
+   - `POST /v1/alerts/maintenance/purge`
+
+### Web Proxy Endpoints
+
+The web app server exposes proxy endpoints under `http://localhost:3000/api`:
+
+- `POST /api/tracker/access/verify`
+- `POST /api/tracker/policies`
+- `GET /api/tracker/policies/:profileId`
+- `GET /api/tracker/history/:profileId`
+- `POST /api/tracker/history/:profileId/export`
+- `GET /api/tracker/exports/:exportId`
+- `GET /api/tracker/audit/:profileId`
+- `POST /api/safety/alerts/help`
+- `POST /api/safety/alerts/help/:alertId/locations`
+
+### Security Configuration
+
+Set the following environment variables for non-development environments:
+
+- `TRACKER_GUARDIAN_PIN`: Guardian PIN used by tracker settings gate in the web proxy.
+- `TRACKER_EXPORT_SECRET`: Secret used to sign tracker export bundles.
+- `ALERT_ENCRYPTION_KEY`: Optional Fernet key used to encrypt alert payloads at rest.
+- `ALERT_RETENTION_MINUTES`: Default alert retention in minutes (range: 5 to 10080).
+
+If these are not set, development fallbacks are used. Configure real secrets before deployment.
 
 ### API Documentation
 

@@ -2,6 +2,7 @@ import { initChildProfileModule } from './safetyTools/child-profile/index.js';
 import { initLocationSafetyMapModule } from './safetyTools/location-safety-map/index.js';
 import { initStayConnectedModule } from './safetyTools/stay-connected/index.js';
 import { initCallForHelpAlarmModule } from './safetyTools/call-for-help-alarm/index.js';
+import { initLocationTrackerModule } from './safetyTools/location-tracker/index.js';
 
 const views = document.querySelectorAll('.view');
 const menuButtons = document.querySelectorAll('[data-view]');
@@ -33,6 +34,7 @@ async function initializeApp() {
   initLocationSafetyMapModule();
   initStayConnectedModule();
   initCallForHelpAlarmModule();
+  initLocationTrackerModule();
 
   showView('home');
 }

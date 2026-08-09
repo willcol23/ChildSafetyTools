@@ -142,6 +142,116 @@ app.get('/api/safety/locations/resolve', async (req, res) => {
   }
 });
 
+app.post('/api/safety/alerts/help', async (req, res) => {
+  try {
+    const payload = await requestBackend('/v1/alerts/help', {
+      method: 'POST',
+      body: JSON.stringify(req.body || {})
+    });
+
+    res.status(201).json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
+app.post('/api/safety/alerts/help/:alertId/locations', async (req, res) => {
+  try {
+    const payload = await requestBackend(`/v1/alerts/help/${req.params.alertId}/locations`, {
+      method: 'POST',
+      body: JSON.stringify(req.body || {})
+    });
+
+    res.status(202).json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
+app.post('/api/tracker/access/verify', (req, res) => {
+  const submittedPin = String(req.body?.pin || '');
+  const configuredPin = String(process.env.TRACKER_GUARDIAN_PIN || '2468');
+  const ok = submittedPin.length > 0 && submittedPin === configuredPin;
+
+  if (!ok) {
+    res.status(401).json({ authorized: false });
+    return;
+  }
+
+  res.json({ authorized: true });
+});
+
+app.post('/api/tracker/policies', async (req, res) => {
+  try {
+    const payload = await requestBackend('/v1/tracker/policies', {
+      method: 'POST',
+      body: JSON.stringify(req.body || {})
+    });
+
+    res.json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
+app.get('/api/tracker/policies/:profileId', async (req, res) => {
+  try {
+    const payload = await requestBackend(`/v1/tracker/policies/${req.params.profileId}`);
+    res.json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
+app.get('/api/tracker/history/:profileId', async (req, res) => {
+  try {
+    const payload = await requestBackend(`/v1/tracker/history/${req.params.profileId}`, {
+      viewerRole: req.query.viewerRole || 'guardian'
+    });
+    res.json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
+app.post('/api/tracker/history/:profileId/export', async (req, res) => {
+  try {
+    const payload = await requestBackend(`/v1/tracker/history/${req.params.profileId}:export`, {
+      method: 'POST',
+      body: JSON.stringify(req.body || {})
+    });
+    res.json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
+app.get('/api/tracker/exports/:exportId', async (req, res) => {
+  try {
+    const payload = await requestBackend(`/v1/tracker/exports/${req.params.exportId}`);
+    res.json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
+app.get('/api/tracker/audit/:profileId', async (req, res) => {
+  try {
+    const payload = await requestBackend(`/v1/tracker/audit/${req.params.profileId}`);
+    res.json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Backend call failed', details: error.message });
+  }
+});
+
 app.get('/api/config', (_req, res) => {
   res.json({ azureMapsApiKey });
 });

@@ -24,6 +24,10 @@
             <span class="title">Identity Vault</span>
             <span class="desc">Secure child profiles</span>
           </button>
+          <button class="menu-button alarm-button" data-view="help">
+            <span class="title">Call For Help</span>
+            <span class="desc">Discreet emergency alert</span>
+          </button>
           <button class="menu-button" data-view="location">
             <span class="title">Safety Map</span>
             <span class="desc">Regional risk analysis</span>
@@ -32,9 +36,9 @@
             <span class="title">Messenger</span>
             <span class="desc">Coming Soon</span>
           </button>
-          <button class="menu-button disabled" disabled>
+          <button class="menu-button" data-view="tracker">
             <span class="title">Activity Tracker</span>
-            <span class="desc">Coming Soon</span>
+            <span class="desc">Guardian settings (PIN protected)</span>
           </button>
         </div>
       </section>
@@ -43,7 +47,7 @@
       <section id="profile-view" class="view">
         <button class="back-button" type="button" data-view="home">← Back to Dashboard</button>
         <h1>Identity Vault</h1>
-        <form id="profile-form" class="profile-form">
+        <form id="child-profile-form" class="profile-form">
           <label>
             <span>Name</span>
             <input type="text" name="name" required />
@@ -60,6 +64,126 @@
         </form>
         <p id="form-status" class="status"></p>
         <ul id="profile-list"></ul>
+      </section>
+
+      <section id="help-view" class="view">
+        <button class="back-button" type="button" data-view="home">← Back to Dashboard</button>
+        <h1>Call For Help Alarm</h1>
+        <p>Send a discreet emergency alert with optional location sharing.</p>
+        <form id="help-alert-form" class="form-stack alarm-form">
+          <label>
+            <span>Dependent Profile ID</span>
+            <input type="text" name="profileId" placeholder="dependent-profile" />
+          </label>
+          <label>
+            <span>Send To</span>
+            <input type="text" name="recipientId" placeholder="guardian-primary" />
+          </label>
+          <label class="inline-toggle">
+            <input id="help-use-default-message" type="checkbox" name="useDefaultMessage" checked />
+            <span>Use default emergency message</span>
+          </label>
+          <label>
+            <span>Emergency Message</span>
+            <textarea id="help-alert-message" name="message" rows="4" placeholder="Type a hidden message"></textarea>
+          </label>
+          <label class="inline-toggle">
+            <input type="checkbox" name="hiddenMode" checked />
+            <span>Hidden mode (no local history shown)</span>
+          </label>
+          <label class="inline-toggle">
+            <input id="help-decoy-mode" type="checkbox" name="decoyMode" checked />
+            <span>Auto-switch to decoy screen after send</span>
+          </label>
+          <button class="menu-button alarm-submit" type="submit">Send Help Alert</button>
+        </form>
+        <div id="help-decoy-panel" class="decoy-panel hidden" aria-live="polite">
+          <h2>Notes</h2>
+          <p>Shopping list reminder: milk, fruit, snacks.</p>
+        </div>
+        <p id="help-alert-status" class="status"></p>
+      </section>
+
+      <section id="tracker-view" class="view">
+        <button class="back-button" type="button" data-view="home">← Back to Dashboard</button>
+        <h1>Activity Tracker Settings</h1>
+        <p>Guardian PIN is required before tracker settings can be accessed.</p>
+
+        <div id="tracker-locked-banner" class="tracker-gate">
+          <form id="tracker-pin-form" class="form-stack">
+            <label>
+              <span>Guardian PIN</span>
+              <input type="password" name="pin" maxlength="12" autocomplete="off" required />
+            </label>
+            <button class="menu-button" type="submit">Unlock Settings</button>
+          </form>
+          <p id="tracker-gate-status" class="status"></p>
+        </div>
+
+        <div id="tracker-settings-panel" class="tracker-settings hidden">
+          <p class="status success">Restricted settings are unlocked for this session.</p>
+          <form class="form-stack" id="tracker-settings-form">
+            <label>
+              <span>Dependent Profile ID</span>
+              <input type="text" name="profileId" value="dependent-profile" required />
+            </label>
+            <label>
+              <span>Tracking Mode</span>
+              <select name="trackingMode">
+                <option value="off">Off</option>
+                <option value="emergency-only" selected>Emergency only</option>
+                <option value="scheduled">Scheduled safety windows</option>
+                <option value="continuous-guardian">Continuous (guardian supervised)</option>
+              </select>
+            </label>
+            <label>
+              <span>Retention Window</span>
+              <select name="retention">
+                <option value="24h" selected>24 hours</option>
+                <option value="7d">7 days</option>
+                <option value="30d">30 days</option>
+              </select>
+            </label>
+            <label>
+              <span>Precision</span>
+              <select name="precision">
+                <option value="high-emergency" selected>High in emergencies only</option>
+                <option value="balanced">Balanced</option>
+                <option value="coarse-default">Coarse by default</option>
+              </select>
+            </label>
+            <label class="inline-toggle">
+              <input type="checkbox" name="allowAuthorityExport" checked />
+              <span>Allow authority export</span>
+            </label>
+            <label>
+              <span>Authority Requester Name</span>
+              <input type="text" name="requestedBy" value="guardian-admin" />
+            </label>
+            <label>
+              <span>Export Scope</span>
+              <input type="text" name="scope" value="last-24h" />
+            </label>
+            <label>
+              <span>Export Expiry (minutes)</span>
+              <input type="number" min="5" max="1440" name="expiresInMinutes" value="60" />
+            </label>
+            <label>
+              <span>Export ID</span>
+              <input type="text" name="exportId" placeholder="Paste exportId to retrieve" />
+            </label>
+            <div class="tracker-actions">
+              <button id="tracker-save-policy" class="menu-button" type="button">Save Policy</button>
+              <button id="tracker-load-history" class="menu-button" type="button">Load History</button>
+              <button id="tracker-create-export" class="menu-button" type="button">Create Export</button>
+              <button id="tracker-load-export" class="menu-button" type="button">Load Export</button>
+              <button id="tracker-load-audit" class="menu-button" type="button">Load Audit</button>
+            </div>
+          </form>
+          <p id="tracker-settings-status" class="status"></p>
+          <pre id="tracker-results" class="tracker-results" aria-live="polite"></pre>
+          <button id="tracker-lock-button" class="back-button" type="button">Lock Tracker Settings</button>
+        </div>
       </section>
 
       <!-- Safety Map View -->
@@ -88,10 +212,6 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="app.js"></script>
-    <script type="module">
-      import { initLocationSafetyMapModule } from './safetyTools/location-safety-map/index.js';
-      initLocationSafetyMapModule();
-    </script>
+    <script type="module" src="main.js"></script>
   </body>
 </html>

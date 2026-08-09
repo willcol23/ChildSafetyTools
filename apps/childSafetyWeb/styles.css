@@ -49,6 +49,10 @@ p {
   display: block;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .menu-section {
   border: 1px solid #e5e7eb;
   border-radius: 18px;
@@ -105,6 +109,21 @@ p {
   color: #64748b;
   margin-top: 4px;
   font-weight: normal;
+}
+
+.alarm-button {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  color: #fff;
+  border: none;
+}
+
+.alarm-button .title,
+.alarm-button .desc {
+  color: #fff;
+}
+
+.alarm-button:hover {
+  background: linear-gradient(135deg, #991b1b, #7f1d1d);
 }
 
 .profile-form,
@@ -183,6 +202,75 @@ textarea {
 
 .status.error {
   color: #b91c1c;
+}
+
+.alarm-form {
+  border: 1px solid #fee2e2;
+  border-radius: 16px;
+  padding: 18px;
+  background: linear-gradient(180deg, #fff5f5, #fff1f2);
+}
+
+.inline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inline-toggle input[type='checkbox'] {
+  width: auto;
+}
+
+.alarm-submit {
+  background: #b91c1c;
+}
+
+.alarm-submit:hover {
+  background: #991b1b;
+}
+
+.decoy-panel {
+  margin-top: 14px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.tracker-gate,
+.tracker-settings {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.tracker-settings {
+  margin-top: 12px;
+}
+
+.tracker-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 800px) {
+  .tracker-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tracker-results {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  min-height: 120px;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 12px;
 }
 
 .saved-profiles {
