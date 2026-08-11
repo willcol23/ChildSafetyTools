@@ -29,6 +29,7 @@ A discreet, encrypted communication channel that allows individuals to reach out
 - Call-for-help alarm with default or custom emergency message modes
 - Decoy screen option and quick-hide behavior for stealth use
 - Future if phone is turned off or lost
+
 ### 2. Location Safety Map
 A data-driven map that helps families understand safety risks in specific cities or regions.
 

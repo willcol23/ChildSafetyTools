@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const http = require('http');
 const https = require('https');
 
@@ -10,6 +11,9 @@ const port = process.env.PORT || 3000;
 const backendBaseUrl = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
 const azureMapsApiKey = process.env.AZURE_MAPS_API_KEY || process.env.PRIMARY_SHARED_KEY || '';
 const uploadsDir = path.join(__dirname, 'uploads');
+const distDir = path.join(__dirname, 'dist');
+const distIndexPath = path.join(distDir, 'index.html');
+const hasReactBuild = fs.existsSync(distIndexPath);
 
 const storage = multer.diskStorage({
   destination: function (_req, _file, cb) {
@@ -26,6 +30,10 @@ const upload = multer({ storage });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+if (hasReactBuild) {
+  app.use(express.static(distDir));
+}
 app.use(express.static(__dirname));
 
 function requestBackend(pathname, options = {}) {
@@ -256,8 +264,17 @@ app.get('/api/config', (_req, res) => {
   res.json({ azureMapsApiKey });
 });
 
+app.get('/legacy', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'legacy.html'));
+});
+
 app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  if (hasReactBuild) {
+    res.sendFile(distIndexPath);
+    return;
+  }
+
+  res.sendFile(path.join(__dirname, 'legacy.html'));
 });
 
 app.listen(port, () => {

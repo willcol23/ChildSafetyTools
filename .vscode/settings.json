@@ -4,5 +4,8 @@
     "./apps/*",
     "./packages/*"
 ],
-"npm.enableRunFromFolder": true
+"npm.enableRunFromFolder": true,
+"chat.tools.terminal.autoApprove": {
+  "npm.cmd": true
+}
 }
