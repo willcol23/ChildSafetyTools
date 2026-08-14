@@ -2,33 +2,13 @@ package com.eliminition.data.remote
 
 import com.eliminition.models.ChildProfile
 import com.eliminition.models.HeatmapOverlay
+import com.eliminition.models.LocationEvent
+import com.eliminition.models.SecureMessage
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-
-data class LocationEventPayload(
-    val profileId: String,
-    val location: LocationPayload,
-    val timestamp: String,
-    val activity_type: String? = null,
-    val battery_level: Double? = null,
-)
-
-data class LocationPayload(
-    val lat: Double,
-    val lng: Double,
-)
-
-data class SecureMessagePayload(
-    val id: String? = null,
-    val senderId: String,
-    val recipientId: String,
-    val body: String,
-    val timestamp: Long? = null,
-    val isEncrypted: Boolean = true,
-)
 
 interface SafetyApiService {
     @GET("v1/vault/profiles")
@@ -49,8 +29,8 @@ interface SafetyApiService {
     ): HeatmapOverlay
 
     @POST("v1/tracker/events")
-    suspend fun reportLocationEvent(@Body event: LocationEventPayload): Unit
+    suspend fun reportLocationEvent(@Body event: LocationEvent): Unit
 
     @POST("v1/communication/messages")
-    suspend fun sendSecureMessage(@Body message: SecureMessagePayload): SecureMessagePayload
+    suspend fun sendSecureMessage(@Body message: SecureMessage): SecureMessage
 }

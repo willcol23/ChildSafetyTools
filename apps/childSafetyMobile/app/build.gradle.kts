@@ -1,19 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.android.built-in-kotlin")
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.legacy.kapt)
+    id("kotlin-kapt")
 }
 
 android {
     namespace = "com.eliminition"
-    compileSdk = 37
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.eliminition"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -36,14 +35,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
+    kotlinOptions {
+        jvmTarget = "17"
+    }
     sourceSets {
         getByName("main") {
-            kotlin.directories.add("../generated/src/main/kotlin")
+            java.srcDir("src/main/java")
+            java.srcDir("../generated/src/main/kotlin")
         }
     }
     buildFeatures {
         compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14" // Matches Kotlin 1.9.24
     }
     packaging {
         resources {
@@ -52,10 +57,8 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-    }
+kapt {
+    correctErrorTypes = true
 }
 
 dependencies {
@@ -67,22 +70,24 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.maps.compose)
-    implementation(libs.google.maps.compose)
-    implementation(libs.google.maps.utils)
-    implementation(libs.play.services.maps)
-    
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.maps.compose)
+    implementation(libs.maps.utils)
+    implementation(libs.play.services.maps)
     
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
+    implementation(libs.retrofit.scalars)
     implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
     implementation(libs.coroutines.android)
+    implementation(libs.javax.annotation.api)
     
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

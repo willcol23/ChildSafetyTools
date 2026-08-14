@@ -46,9 +46,9 @@ fun HeatmapScreen(
             val stateName = parts.getOrNull(1)?.trim().orEmpty().ifBlank { "OH" }
             
             val overlay = api.getHeatmapOverlay(cityName, stateName)
-            center = LatLng(overlay.location.lat, overlay.location.lng)
+            center = LatLng(overlay.location.lat.toDouble(), overlay.location.lng.toDouble())
             points = overlay.cells.map { 
-                WeightedLatLng(LatLng(it.lat, it.lng), it.intensity * 10) 
+                WeightedLatLng(LatLng(it.lat.toDouble(), it.lng.toDouble()), it.intensity.toDouble() * 10) 
             }
             camera.position = CameraPosition.fromLatLngZoom(center, 12f)
         } catch (e: Exception) {

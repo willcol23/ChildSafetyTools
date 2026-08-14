@@ -13,12 +13,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.eliminition.data.SyncRepository
 import com.eliminition.data.remote.SafetyApiService
-import com.eliminition.ui.activityTracker.ActivityTrackerScreen
+import com.eliminition.ui.tracker.ActivityTrackerScreen
 import com.eliminition.ui.landing.LandingScreen
 import com.eliminition.ui.map.ConfigScreen
 import com.eliminition.ui.map.HeatmapScreen
-import com.eliminition.ui.messanger.SecureMessengerScreen
+import com.eliminition.ui.messenger.SecureMessengerScreen
 import com.eliminition.ui.vault.VaultScreen
+import com.eliminition.ui.vault.VaultViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -28,9 +29,6 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var safetyApi: SafetyApiService
 
-    @Inject
-    lateinit var syncRepository: SyncRepository
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -39,7 +37,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(safetyApi, syncRepository)
+                    AppNavigation(safetyApi)
                 }
             }
         }
@@ -47,7 +45,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation(api: SafetyApiService, repository: SyncRepository) {
+fun AppNavigation(api: SafetyApiService) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "landing") {
@@ -81,7 +79,11 @@ fun AppNavigation(api: SafetyApiService, repository: SyncRepository) {
             ActivityTrackerScreen(api = api)
         }
         composable("vault") {
-            VaultScreen(repository = repository)
+            val viewModel: VaultViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            VaultScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
