@@ -13,7 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "childSafetyMobile"
+rootProject.name = "Eliminition"
 include(":app")
-include(":safety-map")
-project(":safety-map").projectDir = file("safetyTools/location-safety-map/android-app/app")

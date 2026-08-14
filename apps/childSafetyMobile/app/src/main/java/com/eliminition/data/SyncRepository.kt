@@ -3,6 +3,7 @@ package com.eliminition.data
 import com.eliminition.data.remote.SafetyApiService
 import com.eliminition.domain.IdentityVaultPort
 import com.eliminition.models.ChildProfile
+import com.eliminition.models.HeatmapOverlay
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,6 +12,10 @@ class SyncRepository @Inject constructor(
     private val localVault: IdentityVaultPort,
     private val remoteApi: SafetyApiService
 ) {
+    suspend fun getHeatmap(city: String, state: String): HeatmapOverlay {
+        return remoteApi.getHeatmapOverlay(city, state)
+    }
+
     suspend fun listProfiles(): List<ChildProfile> {
         // Try to fetch from remote first, then update local
         return try {
