@@ -1,96 +1,161 @@
 package com.eliminition.ui.vault
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.eliminition.data.SyncRepository
-import com.eliminition.models.ChildProfile
-import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VaultScreen(repository: SyncRepository) {
-    var name by remember { mutableStateOf("") }
-    var dob by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var profiles by remember { mutableStateOf<List<ChildProfile>>(emptyList()) }
+fun VaultScreen(
+    viewModel: VaultViewModel,
+    onBack: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showAddDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Identity Vault") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Identity Vault") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showAddDialog = true }) {
+                Icon(Icons.Default.Add, contentDescription = "Add Profile")
+            }
+        }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Name") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = dob,
-                onValueChange = { dob = it },
-                label = { Text("Date of birth") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Button(onClick = {
-                val profile = ChildProfile(name = name, dob = dob, description = description)
-                kotlinx.coroutines.GlobalScope.launch {
-                    val saved = repository.saveProfile(profile)
-                    profiles = listOf(saved) + profiles
+        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+            if (uiState.profiles.isEmpty() && !uiState.isLoading) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("No profiles saved yet", style = MaterialTheme.typography.bodyLarge)
+                    Text("Tap + to add your first child profile", style = MaterialTheme.typography.bodySmall)
                 }
-            }) {
-                Text("Save profile")
-            }
-
-            Button(onClick = {
-                kotlinx.coroutines.GlobalScope.launch {
-                    profiles = repository.listProfiles()
-                }
-            }) {
-                Text("Refresh")
-            }
-
-            Text("Stored profiles", fontSize = 24.sp)
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(profiles) { profile ->
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(profile.name, style = MaterialTheme.typography.titleMedium)
-                        Text(profile.dob)
-                        profile.description?.let { Text(it) }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(uiState.profiles) { profile ->
+                        ProfileCard(
+                            name = profile.name,
+                            dob = profile.dob,
+                            description = profile.description ?: "No description"
+                        )
                     }
                 }
             }
+
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            uiState.errorMessage?.let { error ->
+                AlertDialog(
+                    onDismissRequest = { viewModel.clearError() },
+                    title = { Text("Error") },
+                    text = { Text(error) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.clearError() }) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
         }
     }
+
+    if (showAddDialog) {
+        AddProfileDialog(
+            onDismiss = { showAddDialog = false },
+            onSave = { name, dob, desc ->
+                viewModel.saveProfile(name, dob, desc)
+                showAddDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun ProfileCard(name: String, dob: String, description: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(text = name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(text = "DOB: $dob", style = MaterialTheme.typography.bodySmall)
+                Text(text = description, style = MaterialTheme.typography.bodyMedium, maxLines = 2)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddProfileDialog(
+    onDismiss: () -> Unit,
+    onSave: (String, String, String) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var dob by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Child Profile") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Full Name") })
+                OutlinedTextField(value = dob, onValueChange = { dob = it }, label = { Text("DOB (YYYY-MM-DD)") })
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Notes/Description") })
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onSave(name, dob, description) }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

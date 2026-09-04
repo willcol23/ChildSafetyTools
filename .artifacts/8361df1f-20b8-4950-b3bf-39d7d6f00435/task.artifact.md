@@ -1,21 +1,17 @@
-# Task List - Unified Landing Page & Map Integration
+# Task List - Identity Vault UI Implementation
 
-## Phase 2.1: Mobile Dependencies & Data Layer
-- [x] Add Maps and Navigation dependencies to `libs.versions.toml` and Gradle
-- [x] Update `SafetyApiService.kt` with Heatmap endpoints
-- [x] Update `SyncRepository.kt` to handle heatmap data
+## Phase 3.1: ViewModel & Data Logic
+- [ ] Create `com.eliminition.ui.vault.VaultViewModel`
+- [ ] Implement `loadProfiles` and `saveProfile` in ViewModel
+- [ ] Add basic form validation logic
 
-## Phase 2.2: Mobile UI Migration & Dashboard
-- [x] Create `com.eliminition.ui.map.ConfigScreen` (refactored from GitHub)
-- [x] Create `com.eliminition.ui.map.HeatmapScreen` (refactored from GitHub)
-- [x] Create `com.eliminition.ui.landing.LandingScreen` (Unified Dashboard)
-- [x] Implement `NavHost` in `MainActivity.kt` for tool navigation
+## Phase 3.2: UI Refinement
+- [ ] Refactor `VaultScreen.kt` to use `VaultViewModel`
+- [ ] Add loading state (ProgressBar)
+- [ ] Implement a floating action button (FAB) for adding new profiles
+- [ ] Improve list item styling for child profiles
 
-## Phase 2.3: Web Dashboard Alignment
-- [x] Update `index.html` to a dashboard layout
-- [x] Refactor `app.js` to handle navigation between Web tool views
-
-## Phase 2.4: Verification
-- [ ] Build and verify Android app navigation
-- [ ] Verify Heatmap data flow in Mobile UI
-- [ ] Verify Web Dashboard layout consistency
+## Phase 3.3: Integration & Testing
+- [ ] Update `MainActivity.kt` navigation to provide ViewModel
+- [ ] Verify local persistence in Room
+- [ ] Verify backend sync via repository

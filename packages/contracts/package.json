@@ -6,8 +6,8 @@
   "scripts": {
     "codegen": "npm run codegen:ts && npm run codegen:python && npm run codegen:kotlin",
     "codegen:ts": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g typescript-fetch -o src/generated",
-    "codegen:python": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g python-pydantic-v2 -o ../python/src/child_safety_core/models --additional-properties=packageName=child_safety_core.models",
-    "codegen:kotlin": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g kotlin -o ../../apps/childSafetyMobile/generated --additional-properties=packageName=com.eliminition.models"
+    "codegen:python": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g python -o ../python/src/child_safety_core/models --additional-properties=library=asyncio,packageName=child_safety_core.models",
+    "codegen:kotlin": "SET \"PATH=C:\\Program Files\\Android\\Android Studio\\jbr\\bin;%PATH%\" && openapi-generator-cli generate -i openapi/child-safety-v1.yaml -g kotlin -o ../../apps/childSafetyMobile/generated --additional-properties=packageName=com.eliminition,serializationLibrary=gson,library=jvm-retrofit2"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.13.0",

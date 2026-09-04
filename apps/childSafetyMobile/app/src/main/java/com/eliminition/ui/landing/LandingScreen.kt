@@ -71,7 +71,7 @@ fun LandingScreen(
                         icon = Icons.Default.Email,
                         description = "Encrypted chat",
                         onClick = onNavigateToMessenger,
-                        enabled = false
+                        enabled = true
                     )
                 }
                 item {
@@ -80,7 +80,7 @@ fun LandingScreen(
                         icon = Icons.Default.LocationOn,
                         description = "GPS movement",
                         onClick = onNavigateToTracker,
-                        enabled = false
+                        enabled = true
                     )
                 }
             }
