@@ -31,7 +31,7 @@ def aggregate_heatmap(crimes: list[CrimeEvent], demographics: list[DemographicPr
         population_factor = min(1.0, sum(profile.population for profile in demographics) / max(len(demographics), 1) / 10000.0)
 
     cells: list[HeatmapCell] = []
-    for (lat, lng), bucket in sorted(buckets.items(), key=lambda item: item[1]["count"], reverse=True)[:5]:
+    for (lat, lng), bucket in sorted(buckets.items(), key=lambda item: int(item[1]["count"]), reverse=True)[:5]:
         crime_types = sorted(bucket["crime_types"])
         intensity = min(1.0, float(bucket["intensity"]) + population_factor * 0.1)
         cells.append(
@@ -75,9 +75,9 @@ class DemoHeatmapService:
         resolved = await self._locations.resolve(query)
         lat, lng = resolved.location.lat, resolved.location.lng
         cells = [
-            HeatmapCell(lat=lat + .004, lng=lng + .003, intensity=.8, count=6, crime_types=["burglary"], properties={"source": "demo"}),
-            HeatmapCell(lat=lat - .003, lng=lng + .002, intensity=.6, count=4, crime_types=["theft"], properties={"source": "demo"}),
-            HeatmapCell(lat=lat + .002, lng=lng - .003, intensity=.5, count=3, crime_types=["assault"], properties={"source": "demo"}),
+            self.create_heatmap_cell(lat=lat + .004, lng=lng + .003, intensity=.8, count=6, crime_type="burglary"),
+            self.create_heatmap_cell(lat=lat - .003, lng=lng + .002, intensity=.6, count=4, crime_type="theft"),
+            self.create_heatmap_cell(lat=lat + .002, lng=lng - .003, intensity=.5, count=3, crime_type="assault"),
         ]
         if query.crime_type.lower() != "all":
             cells = [cell for cell in cells if query.crime_type.lower() in {kind.lower() for kind in cell.crime_types}]
@@ -87,4 +87,14 @@ class DemoHeatmapService:
             filters={"city": resolved.city, "state": resolved.state, "crime_type": query.crime_type},
             cell_count=len(cells),
             cells=cells,
+        )
+
+    def create_heatmap_cell(self, lat: float, lng: float, intensity: float, count: int, crime_type: str) -> HeatmapCell:
+        return HeatmapCell(
+            lat=lat,
+            lng=lng,
+            intensity=intensity,
+            count=count,
+            crime_types=[crime_type],
+            properties={"source": "demo"},
         )
